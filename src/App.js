@@ -1,12 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
-import Login from './Login';
+import React, { useState } from 'react';
 import Signin from './Signin';
+import NewsFeed from './NewsFeed';
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    
+    
+  };
+
   return (
     <div>
-      <Signin/>
+      {isLoggedIn ? (
+        <NewsFeed onLogout={handleLogout} />
+      ) : (
+        <Signin onLoginSuccess={handleLoginSuccess}   />
+      )}
     </div>
   );
 }
