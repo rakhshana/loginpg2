@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Box from '@mui/material/Box';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import { Button } from '@mui/material';
 
 const NewsFeed = ({ onLogout }) => {
   const [articles, setArticles] = useState([]);
@@ -8,13 +14,40 @@ const NewsFeed = ({ onLogout }) => {
   const [country, setCountry] = useState('');
   const [language, setLanguage] = useState('en');
 
-  const apiKey = 'pub_8665936db06feaa099e031608f41cba2ff206';
+  const apiKey = process.env.REACT_APP_API_KEY;
+  const apiUrl = process.env.REACT_APP_API_URL;
+
+  const CATEGORIES = [
+  { value: '', label: 'All' },
+  { value: 'business', label: 'Business' },
+  { value: 'technology', label: 'Technology' },
+  { value: 'sports', label: 'Sports' },
+  { value: 'health', label: 'Health' },
+  { value: 'entertainment', label: 'Entertainment' },
+];
+
+const COUNTRIES = [
+  { value: '', label: 'All' },
+  { value: 'us', label: 'USA' },
+  { value: 'in', label: 'India' },
+  { value: 'gb', label: 'UK' },
+  { value: 'au', label: 'Australia' },
+];
+
+const LANGUAGES = [
+  { value: 'en', label: 'English' },
+  { value: 'hi', label: 'Hindi' },
+  { value: 'fr', label: 'French' },
+  { value: 'es', label: 'Spanish' },
+];
+
 
   useEffect(() => {
     const fetchNews = async () => {
       setLoading(true);
       try {
-        const url = `https://newsdata.io/api/1/news?apikey=${apiKey}&language=${language}${category && `&category=${category}`}${country && `&country=${country}`}`;
+        const url = `${apiUrl}?apikey=${apiKey}&language=${language}${category && `&category=${category}`}${country && `&country=${country}`}`;
+
         const response = await axios.get(url);
         setArticles(response.data.results);
       } catch (error) {
@@ -26,98 +59,83 @@ const NewsFeed = ({ onLogout }) => {
 
     fetchNews();
   }, [category, country, language]);
-
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px', backgroundColor: '#f5f5f5' }}>
       
       <div style={{ textAlign: 'right', padding: '10px' }}>
-        <button
-          onClick={onLogout}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: '#f44336',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-            fontSize: '16px',
-            transition: 'background-color 0.3s',
-          }}
-        >
-          Logout
-        </button>
+        <Button variant="contained" color="error" onClick={onLogout}>Logout
+        </Button>
       </div>
 
-      {/* Heading */}
+      
       <h2 style={{ textAlign: 'center', color: '#333', fontSize: '2rem' }}>News Feed</h2>
 
-      {/* Filters */}
+      
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
         <div style={{ marginRight: '20px' }}>
-          <label style={{ fontSize: '1rem', marginRight: '8px' }}>Category:</label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              fontSize: '1rem',
-              borderRadius: '5px',
-              border: '1px solid #ccc',
-              width: '150px',
-            }}
-          >
-            <option value="">All</option>
-            <option value="business">Business</option>
-            <option value="technology">Technology</option>
-            <option value="sports">Sports</option>
-            <option value="health">Health</option>
-            <option value="entertainment">Entertainment</option>
-          </select>
-        </div>
+          <Box sx={{ minWidth: 120 }}>
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">Category</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={category}
+                  label="Category"
+                  onChange={(e) => setCategory(e.target.value)}
+                >
+               {CATEGORIES.map((cat) => (
+                 <MenuItem key={cat.value} value={cat.value}>
+                  {cat.label}
+                 </MenuItem>
+              ))}
+                </Select>
+            </FormControl>
+         </Box>
+       </div>
+    <div style={{ marginRight: '20px' }}>
+          <Box sx={{ minWidth: 120 }}>
+      <FormControl fullWidth>
+        <InputLabel id="demo-simple-select-label">Country</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={country}
+          label="Country"
+          onChange={(e) => setCountry(e.target.value)}
+        >
+          {COUNTRIES.map((c) => (
+    <MenuItem key={c.value} value={c.value}>
+      {c.label}
+    </MenuItem>
+  ))}
+        </Select>
+      </FormControl>
+    </Box>
+    </div>
 
-        <div style={{ marginRight: '20px' }}>
-          <label style={{ fontSize: '1rem', marginRight: '8px' }}>Country:</label>
-          <select
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              fontSize: '1rem',
-              borderRadius: '5px',
-              border: '1px solid #ccc',
-              width: '150px',
-            }}
-          >
-            <option value="">All</option>
-            <option value="us">USA</option>
-            <option value="in">India</option>
-            <option value="gb">UK</option>
-            <option value="au">Australia</option>
-          </select>
-        </div>
-
-        <div>
-          <label style={{ fontSize: '1rem', marginRight: '8px' }}>Language:</label>
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              fontSize: '1rem',
-              borderRadius: '5px',
-              border: '1px solid #ccc',
-              width: '150px',
-            }}
-          >
-            <option value="en">English</option>
-            <option value="hi">Hindi</option>
-            <option value="fr">French</option>
-            <option value="es">Spanish</option>
-          </select>
-        </div>
+    <div style={{ marginRight: '20px' }}>
+          <Box sx={{ minWidth: 120 }}>
+      <FormControl fullWidth>
+        <InputLabel id="demo-simple-select-label">Language</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={language}
+          label="Language"
+          onChange={(e) => setLanguage(e.target.value)}
+        >
+          {LANGUAGES.map((lang) => (
+    <MenuItem key={lang.value} value={lang.value}>
+      {lang.label}
+    </MenuItem>
+  ))}
+        </Select>
+      </FormControl>
+    </Box>
+    </div>
       </div>
 
-      {/* Loading Indicator */}
+      
       {loading ? (
         <p style={{ textAlign: 'center', fontSize: '1.2rem', color: '#666' }}>Loading...</p>
       ) : (

@@ -1,15 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Button, TextField } from '@mui/material';
 
-function Signin({ onLoginSuccess}) {
+function Signin({ onLoginSuccess, onSwitchToRegister }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [errors, setErrors] = useState({});
 
+  const signinurl = process.env.REACT_APP_API_SIGNIN;
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!email) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = 'Invalid email format';
+    }
+
+    if (!password) {
+      newErrors.password = 'Password is required';
+    } else if (password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
+
     try {
-      const response = await fetch('https://reqres.in/api/login', {
+      const response = await fetch(signinurl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -21,13 +46,13 @@ function Signin({ onLoginSuccess}) {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(` Login successful! Token: ${data.token}`);
+        setMessage(`Login successful! Token: ${data.token}`);
         onLoginSuccess();
       } else {
-        setMessage(` Login failed: ${data.error}`);
+        setMessage(`Login failed: ${data.error}`);
       }
     } catch (error) {
-      setMessage(` Network error: ${error.message}`);
+      setMessage(`Network error: ${error.message}`);
     }
   };
 
@@ -48,55 +73,34 @@ function Signin({ onLoginSuccess}) {
       >
         <h2 style={{ textAlign: 'center' }}>Login</h2>
 
-        <div style={{ marginBottom: '15px', width: '100%' }}>
-          <label>Email:</label>
-          <input
+        <div style={{ marginBottom: '15px', width: '70%' }}>
+          <TextField
+            label="Email"
+            variant="outlined"
             type="email"
             value={email}
-            required
+            error={!!errors.email}
+            helperText={errors.email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px',
-              height: '30px',
-              borderRadius: '6px',
-              border: '1px solid #ccc',
-            }}
           />
         </div>
 
-        <div style={{ marginBottom: '15px', width: '100%' }}>
-          <label>Password:</label>
-          <input
+        <div style={{ marginBottom: '15px', width: '70%' }}>
+          <TextField
+            label="Password"
+            variant="outlined"
             type="password"
             value={password}
-            required
+            error={!!errors.password}
+            helperText={errors.password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px',
-              height: '30px',
-              borderRadius: '6px',
-              border: '1px solid #ccc',
-            }}
           />
         </div>
 
-        <button
-          type="submit"
-          style={{
-            width: '100%',
-            padding: '12px',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            marginTop: '10px',
-          }}
-        >
-          Login
-        </button>
+        <Button variant="contained" type="submit">Login</Button>
+        <Button onClick={onSwitchToRegister} style={{ marginTop: '10px' }}>
+          Don't have an account? Register
+        </Button>
 
         {message && (
           <div
@@ -116,3 +120,4 @@ function Signin({ onLoginSuccess}) {
 }
 
 export default Signin;
+
