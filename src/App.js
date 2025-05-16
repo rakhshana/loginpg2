@@ -1,41 +1,101 @@
-import React, { useState, useEffect } from 'react';
-import Signin from './Signin';
-import Register from './Register';
-import NewsFeed from './NewsFeed';
-import Cookies from 'js-cookie';
+import React, { useState, useEffect } from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import Signin from "./pages/Signin";
+import Register from "./pages/Register";
+import NewsFeed from "./pages/NewsFeed";
+import UserProfile from "./pages/UserProfile";
+import Cookies from "js-cookie";
+import Logout from "./components/Logout";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showRegister, setShowRegister] = useState(false); // 🔁 Track login/register screen
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
+  const [redirectPath, setRedirectPath] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const loggedInCookie = Cookies.get('isLoggedIn');
-    if (loggedInCookie === 'true') {
-      setIsLoggedIn(true);
-    }
+    const loggedInCookie = Cookies.get("isLoggedIn");
+    setIsLoggedIn(loggedInCookie === "true");
   }, []);
+
+  useEffect(() => {
+    if (redirectPath) {
+      navigate(redirectPath);
+      setRedirectPath(null);
+    }
+  }, [redirectPath, navigate]);
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
-    Cookies.set('isLoggedIn', 'true', { expires: 7 });
+    Cookies.set("isLoggedIn", "true", { expires: 7 });
+    setRedirectPath("/news-feed");
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    Cookies.remove('isLoggedIn');
-    setShowRegister(false); 
+    Cookies.remove("isLoggedIn");
+    setRedirectPath("/");
   };
 
+  const switchToRegister = () => {
+    setRedirectPath("/register");
+  };
+
+  const switchToLogin = () => {
+    setRedirectPath("/");
+  };
+
+  if (isLoggedIn === null) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "50px" }}>Loading...</div>
+    );
+  }
+
   return (
-    <div>
-      {isLoggedIn ? (
-        <NewsFeed onLogout={handleLogout} />
-      ) : showRegister ? (
-        <Register onRegisterSuccess={handleLoginSuccess} onSwitchToLogin={() => setShowRegister(false)} />
-      ) : (
-        <Signin onLoginSuccess={handleLoginSuccess} onSwitchToRegister={() => setShowRegister(true)} />
-      )}
-    </div>
+    <Routes>
+      <Route
+        path="/"
+        element={
+          isLoggedIn ? (
+            <Navigate to="/news-feed" />
+          ) : (
+            <Signin
+              onLoginSuccess={handleLoginSuccess}
+              onSwitchToRegister={switchToRegister}
+            />
+          )
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <Register
+            onRegisterSuccess={handleLoginSuccess}
+            onSwitchToLogin={switchToLogin}
+          />
+        }
+      />
+      <Route
+        path="/news-feed"
+        element={
+          isLoggedIn ? (
+            <NewsFeed onLogout={handleLogout} />
+          ) : (
+            <Navigate to="/" />
+          )
+        }
+      />
+      <Route
+        path="/user-profile"
+        element={isLoggedIn ? <UserProfile /> : <Navigate to="/" />}
+      />
+      <Route
+        path="/logout"
+        element={
+          isLoggedIn ? <Logout onLogout={handleLogout} /> : <Navigate to="/" />
+        }
+      />
+      <Route path="*" element={<p>Page not found</p>} />
+    </Routes>
   );
 }
 
