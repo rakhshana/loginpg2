@@ -6,6 +6,8 @@ import NewsFeed from "./pages/NewsFeed";
 import UserProfile from "./pages/UserProfile";
 import Cookies from "js-cookie";
 import Logout from "./components/Logout";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
@@ -51,51 +53,58 @@ function App() {
   }
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          isLoggedIn ? (
-            <Navigate to="/news-feed" />
-          ) : (
-            <Signin
-              onLoginSuccess={handleLoginSuccess}
-              onSwitchToRegister={switchToRegister}
+    <div>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            isLoggedIn ? (
+              <Navigate to="/news-feed" />
+            ) : (
+              <Signin
+                onLoginSuccess={handleLoginSuccess}
+                onSwitchToRegister={switchToRegister}
+              />
+            )
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <Register
+              onRegisterSuccess={handleLoginSuccess}
+              onSwitchToLogin={switchToLogin}
             />
-          )
-        }
-      />
-      <Route
-        path="/register"
-        element={
-          <Register
-            onRegisterSuccess={handleLoginSuccess}
-            onSwitchToLogin={switchToLogin}
-          />
-        }
-      />
-      <Route
-        path="/news-feed"
-        element={
-          isLoggedIn ? (
-            <NewsFeed onLogout={handleLogout} />
-          ) : (
-            <Navigate to="/" />
-          )
-        }
-      />
-      <Route
-        path="/user-profile"
-        element={isLoggedIn ? <UserProfile /> : <Navigate to="/" />}
-      />
-      <Route
-        path="/logout"
-        element={
-          isLoggedIn ? <Logout onLogout={handleLogout} /> : <Navigate to="/" />
-        }
-      />
-      <Route path="*" element={<p>Page not found</p>} />
-    </Routes>
+          }
+        />
+        <Route
+          path="/news-feed"
+          element={
+            isLoggedIn ? (
+              <NewsFeed onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+        <Route
+          path="/user-profile"
+          element={isLoggedIn ? <UserProfile /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/logout"
+          element={
+            isLoggedIn ? (
+              <Logout onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+        <Route path="*" element={<p>Page not found</p>} />
+      </Routes>
+      <ToastContainer position="top-right" autoClose={2000} theme="colored" />
+    </div>
   );
 }
 

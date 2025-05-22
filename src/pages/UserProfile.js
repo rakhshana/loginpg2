@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import MainNavigation from "../layout/MainNavigation";
 import { TextField, Button } from "@mui/material";
+import { toast } from "react-toastify";
 
 function UserProfile({ onLogout }) {
   const [userDetails, setUserDetails] = useState({
@@ -38,7 +39,7 @@ function UserProfile({ onLogout }) {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage("Profile updated successfully!");
+        toast.info("Profile updated successfully!");
         Cookies.set("userPassword", userDetails.password);
         Cookies.set("userPhoneno", userDetails.phoneno);
       } else {
